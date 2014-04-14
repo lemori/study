@@ -1,0 +1,91 @@
+
+def update_user_foreignkey(session, user, info):
+    """Update/create user foreignkey records if necessary."""
+    for item in ['account', 'favor', 'history']:
+        i, tmp = getattr(user, item), None
+        if item in info:        #check if info[item] is valid
+            tmp = session.query(tables[item]).get(int(info[item]))
+            if tmp == None:
+                del info[item]
+        if i == None:           #if user.item is null, assign one
+            if tmp == None:
+                tmp = tables[item]()
+                session.add(tmp)
+                session.flush()
+                setattr(user, item, tmp.id)
+            else:
+                setattr(user, item, tmp.id)
+        elif item in info:
+            #if already has, try to update it from info
+            if i != int(info[item]) and tmp != None:
+                tmp2 = session.query(tables[item]).get(i)
+                session.delete(tmp2)
+                setattr(user, item, tmp.id)
+    #make sure the reference is new; depends on session safety.
+    #session.flush()
+    return (user, info)
+
+def update_user(info):
+    """Update user infomation.
+    info is a dict: {'id':uid, 'item':value} or {'user':{}, 'account':{}}.
+    Return true if done, otherwise error message."""
+    if 'id' in info:
+        uid = info['id']
+    elif 'user' in info and 'id' in info['user']:
+        uid = info['user']['id']
+    else:
+        return 'User info is not bound to any user.'
+    session = open_session()
+    try:
+        updated = False
+        user = session.query(User).get(uid)
+        if user == None:
+            return 'User ' + str(uid) + ' does not exist.'
+        if 'user' in info:
+            #user related
+            uinfo = util.check_update_info(info['user'], ['id'])
+            if uinfo and _update_info_by_type('user', uinfo):
+                updated = True
+            #user account related
+            if 'account' in info:
+                ainfo = util.check_update_info(info['account'], ['uid'])
+                if ainfo and not 'id' in ainfo:
+                    account = Acct(uid=uid)
+                    session.add(account)
+                    session.flush
+                    ainfo['id'] = account.id
+                    updated = True
+                if len(ainfo) > 1 and _update_info_by_type('account', ainfo):
+                    updated = True
+        else:
+            #just user related
+            info = util.check_update_info(info)
+            if info and _update_info_by_type('user', info):
+                updated = True
+        if updated:
+            session.commit()
+            return True
+        else:
+            return 'Nothing updated'
+    except:
+        session.rollback()
+        raise
+    finally:
+        close_session(session)
+        
+
+def _common_action(status, request):
+    if request in ['00', '?', '？']:
+        return menu(status)
+    elif request == '01':
+        return '暂无'
+    if request == '0':
+        #User cancelled the action
+        if status['nowstep']:
+            update_status(status, {'nowstep': status['prestep'], 'prestep': ''})
+            return "已退回上一步。回复00回到主菜单。"
+        else:
+            return menu(status)
+     else:
+        return False
+

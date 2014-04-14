@@ -1,0 +1,26 @@
+$def with (info)
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>用户登录</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" >
+    <link rel='stylesheet' href='/static/common.css'>
+</head>
+
+<body>
+<div id="content">
+  <div id='loginfo'>$info</div>
+  <form id="f_login" name="f_login" method="post" action="/login_check">
+    <span>用户名:</span>
+    <input type="text" name="username" id="username" />
+    <br>
+    <span>密&nbsp;&nbsp;&nbsp;&nbsp;码:</span>
+    <input type="password" name="userpwd" id="userpwd" />
+    <br>
+    <input type="submit" name="button" id="button" value="提交" />
+  </form>
+</div>
+</body>
+</html>

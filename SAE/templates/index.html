@@ -1,0 +1,35 @@
+$def with (msg)
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Welcome!</title>
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" >
+        <link rel='stylesheet' href='/static/common.css'>
+        <style>
+            #item {width:200px;}
+        </style>
+    </head>
+    <body>
+      <div class='wrapper'>
+        <div><script>document.write(navigator.userAgent);</script></div>
+        <div class='one'>$msg</div><br>
+        <div class='android hh'>
+         <form method="post" action="/test">
+            <select id='choice' name='choice'>
+             <option value='' selected>--请选择一个操作--</option>
+             <option value='1'>查看查看商品类别</option>
+             <option value='2'>查找商品</option>
+            </select>
+            <br><span>商品名称：</span>
+            <input type='text' id='item' name='item' value='' />
+            <br><br>
+            <input type='submit' value='提交' />
+         </form>
+        </div>
+        <br><br><br>
+        <a href='/login'>Log in</a>&nbsp;OR&nbsp;<a href='/logout'>Log out</a><br>
+      </div>
+    </body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>Connect to SAE MySql</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <style>
+        .action {margin-left:200px;}
+        #info {width:800px;height:300px;}
+    </style>
+    <script src="js/jq.mobi.min.js"></script>
+    <script>
+        function query(c) {
+            var stype, url = 'YOUR_URL';
+            if (0 === c) {
+                stype = 'GET';
+            } else if (1 === c) {
+                stype = 'POST';
+                url += '';
+            } else {
+                stype = 'POST';
+                url += '';
+            }
+            // send request to SAE server
+            $.ajax({
+                type: stype,
+                url: url,
+                success: function(data) {$('#info').text = 'success:\n' + data;},
+                error: function(data) {$('#info').text = 'error:\n' + data;}
+            });
+        }
+    </script>
+    </head>
+    <body>
+        <div class="action">
+            <input type="button" value="连接到服务器" onclick="query(0)" />
+            <input type="button" value="连接到数据库" onclick="query(1)" />
+            <input type="button" value="查询数据库" onclick="query(2)" />
+        </div>
+        <hr>
+        <div>
+            <textarea id="info"></textarea>
+        </div>
+    </body>
+</html>

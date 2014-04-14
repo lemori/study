@@ -1,0 +1,75 @@
+set nu
+set shiftwidth=4
+filetype plugin on
+filetype indent on
+autocmd FileType python set shiftwidth=4 | set expandtab
+autocmd FileType python set omnifunc=pythoncomplete#Complete
+autocmd FileType html set omnifunc=htmlcomplete#Complete
+
+"""""""""""""""""""""""
+"Tag Lisg(ctags) disabled
+"""""""""""""""""""""""
+"set tags=/home/lemori/ws/app/tags
+"au BufWritePost *.py,*c,*cpp,*h !ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .
+"let Tlist_Ctags_Cmd = 'ctags'
+"let Tlist_Auto_Open = 0
+"let Tlist_Show_One_File=1
+"let Tlist_Exit_OnlyWindow=1
+""""""""""""""""""""""""""""""
+" netrw setting
+"""""""""""""""""""""""""""""""
+let g:netrw_winsize = 10
+"nmap <silent> <leader>fe :Sexplore!<cr>
+map <silent> <F4> : Vexplore<CR> "开fileexploer，S代表当前分隔一个横向的窗口，V代表纵向
+"""""""""""""""""""""""""""""""
+" compile
+"""""""""""""""""""""""""""""""
+autocmd BufRead *.py map <buffer> <F5> :w<CR>:!/usr/bin/env python % <CR>
+
+""""""""""""""""""""""""""""""""
+" a script that automatically checks the syntax while saving and refuses to
+" save files with syntax errors.
+" http://vim.wikia.com/wiki/Python_-_check_syntax_and_run_script
+""""""""""""""""""""""""""""""""
+" Define the current compiler
+if exists("compiler")
+  finish
+endif
+let compiler = "python"
+
+" Set python as the make program and
+setlocal makeprg=python
+setlocal errorformat=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\ ]%\\@=%m
+
+" When writing Python file check the syntax
+au! BufWriteCmd *.py call CheckPythonSyntax()
+
+function CheckPy()
+  " Write the current buffer to a temporary file, check the syntax and
+  " if no syntax errors are found, write the file
+  let curfile = bufname("%")
+  let tmpfile = tempname()
+  silent execute "write! ".tmpfile
+  let output = system("python -c \"__import__('py_compile').compile(r'".tmpfile."')\" 2>&1")
+  if output != ''
+    " Make sure the output specifies the correct filename
+    let output = substitute(output, fnameescape(tmpfile), fnameescape(curfile), "g")
+    echo output
+  else
+    write
+  endif
+  " Delete the temporary file when done
+  call delete(tmpfile)
+endfunction
+map <leader>checkpy :call CheckPy(()
+""""""""""""""""""""""""""""""""""""""""""""""""
+"let mapleader=','
+""""""""""""""""""""""""""""""""""""""""""""""""
+"   格式化xml
+""""""""""""""""""""""""""""""""""""""""""""""""
+function Xml()
+    set filetype=xml
+    :%s/>\s*</>\r</g "把><替换成>回车<
+    :normal gg=G<cr>
+endfunction
+map  <leader>xml  :call Xml()
