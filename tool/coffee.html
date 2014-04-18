@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+  <title>即时CoffeeScript</title>
+  <link rel="shortcut icon" href="http://coffeescript.org/documentation/images/favicon.ico" />
+  <script type="text/javascript" src="http://coffeescript.org/extras/coffee-script.js"></script>
+</head>
+<body>
+  <div>
+    <input type="button" value="Compile" class="left200px" onclick="compile()" />
+    &nbsp;&nbsp;
+    <input type="button" value="Run" onclick="run()" />
+    &nbsp;&nbsp;
+    <span id="info"></span>
+  </div>
+  <hr>
+  <div>
+    <div class="div_content">
+      <code><textarea id="source" wrap="visual"></textarea></code>
+    </div>
+    <div class="div_delim">&gt;&gt;</div>
+    <div class="div_content">
+      <code><textarea id="result" wrap="visual"></textarea></code>
+    </div>
+  </div>
+  <br>
+  <div>Documents @ <a href="http://coffeescript.org/" target=_blank>CoffeScript</a></div>
+  <style type="text/css">
+    body {margin:5px;}
+    textarea {width: 98%; height: 98%; overflow-y: scroll;resize:none;}
+    .div_content {display:inline-block;width:48%;height:500px;border: 1px solid steelblue;}
+    .div_delim {display: inline-block;margin: auto; vertical-align: top;}
+    .left200px {margin-left: 200px;}
+  </style>
+  <script>
+    var $ = function(s) { return document.getElementById(s.substring(1)) };
+    window.compiledJS = "";
+    function compile() {
+      $("#info").innerHTML = "";
+      var s = $("#source").value;
+      try {
+        var result = window.CoffeeScript.compile(s, {'bare':'on'});
+      } catch (error) {
+          alert(error);
+          return;
+      }
+      $("#result").value = window.compiledJS = result;
+    }
+    function run() {
+      try {
+        if (!window.compiledJS) return;
+        var t = eval(window.compiledJS) || "";
+        if (t === "") return;
+        $("#info").innerHTML = "type:" + typeof(t) + "; constructor:" + t.constructor.name;
+        alert(t);
+      } catch (e) {
+        alert(e);
+      }
+    }
+  </script>
+</body>
+</html>

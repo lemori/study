@@ -1,0 +1,11 @@
+Sublime Text 2
+
+安装方式：
+sudo add-apt-repository ppa:webupd8team/sublime-text-2
+
+sudo apt-get update
+
+sudo apt-get install sublime-text-2
+
+中文翻译：http://www.ezloo.com/2013/01/sublime_text.html
+感谢原作者。这里略有调整。
