@@ -1,7 +1,7 @@
 #coding:utf-8
-#####################################################
-# Requires MediaInfo Cli (prefer) or ffmpeg (linux) #
-#####################################################
+###############################################################
+# Requires MediaInfo Cli (prefer) OR ffmpeg & ffprobe (linux) #
+###############################################################
 import os
 import stat
 import time
@@ -14,20 +14,21 @@ def get_usable_decoder(cmd):
         p = subprocess.Popen([cmd, v], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         vers = out.split('\n')[0].split(' ')
-        assert (vers[0] == 'MediaInfo') or (vers[0] == 'avconv') or (vers[0] == 'ffmpeg')
+        assert (vers[0] == 'MediaInfo') or (vers[0] == 'avprobe') or (vers[0] == 'ffprobe')
         return cmd
     except:
         return None
 
-DECODER = get_usable_decoder('mediainfo') or get_usable_decoder('avconv') or get_usable_decoder('ffmpeg')
+DECODER = get_usable_decoder('mediainfo') or get_usable_decoder('avprobe') or get_usable_decoder('ffprobe')
 
 def _get_media_info(absname):
+    '''Only supports media duration by now, in seconds'''
     if not DECODER:
         return {'duration': -1} # not supported
     if DECODER == 'mediainfo':
-        cmnd = ['mediainfo', r'--Output=General;%Duration%', absname]
+        cmnd = [DECODER, r'--Output=General;%Duration%', absname]
     else:
-        cmnd = ['ffprobe', '-show_format', '-loglevel', 'quiet', absname]
+        cmnd = [DECODER, '-show_format', '-loglevel', 'quiet', absname]
     p = subprocess.Popen(cmnd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err =  p.communicate()
     if err or not out:
@@ -54,8 +55,7 @@ def isvalid_weixin_media(ftype, size, duration=-1):
             return 0
         if size > 64 * 1024:
             return 3 # good for image, not for thumb
-        else:
-            return 1
+        return 1
     if ftype == 'amr' or ftype == 'mp3':
         if (size <= 256 * 1024) and (0 <= duration <= 60):
             return 1
@@ -95,17 +95,15 @@ def media_info(absname):
     return info
 
 def walk(path):
-    #三个参数：分别返回1.父目录 2.所有文件夹名字（不含路径） 3.所有文件名字
+    #三个参数：1.父目录 2.所有文件夹名字（不含路径） 3.所有文件名字
     for parent,dirnames,filenames in os.walk(path):
         #输出文件夹信息
         for dirname in  dirnames:
-            print "parent is:" + parent
-            print  "dirname is:" + dirname
+            print  "dirname is:", dirname
 
         #输出文件信息
         for filename in filenames:
-            #print "parent is:" + parent
-            print "文件名:" + filename
+            print "文件名:", filename
             #输出文件路径信息
             absname = os.path.join(parent,filename)
             print "完整路径:", os.path.abspath(absname)
