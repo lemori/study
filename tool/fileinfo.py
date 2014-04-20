@@ -5,6 +5,7 @@
 import os
 import stat
 import time
+import re
 import subprocess
 
 def get_usable_decoder(cmd):
