@@ -1,4 +1,4 @@
-#coding:utf-8
+# coding: utf-8
 ###############################################################
 # Requires MediaInfo Cli (prefer) OR ffmpeg & ffprobe (linux) #
 ###############################################################
@@ -94,22 +94,51 @@ def media_info(absname):
     info['size'] = '%.1f %s' % (psize['size'], psize['unit'])
     return info
 
-def walk(path):
-    #三个参数：1.父目录 2.所有文件夹名字（不含路径） 3.所有文件名字
-    for parent,dirnames,filenames in os.walk(path):
-        #输出文件夹信息
-        for dirname in  dirnames:
-            print  "dirname is:", dirname
+def _sort_dirs(dirs, ignoreDirs=[]):
+    '''将目录按名称归类，分隔符-'''
+    for d in ignoreDirs:
+        if d in dirs:
+            dirs.remove(d)
+    res = {}
+    for dirname in dirs:
+        findex = dirname.find('-')
+        if findex < 1:
+            res[dirname] = ''
+        else:
+            y, m = dirname[0:findex], dirname[findex+1:]
+            if y in res:
+                res[y].append(m)
+            else:
+                res[y] = [m]
+    return res
 
+def walk(path, fileOnly=False, ignoreDirs=[]):
+    '''返回指定路径下的目录列表和文件信息。
+    参数path：路径名
+    参数fileOnly：可选， True则目录列表为空, 默认False
+    参数ignoreDirs：可选，需过滤的目录列表，默认[]
+    '''
+    res = {}
+    res['root'] = path
+    res['files'] = []
+    path = os.path.normpath(path)
+    #三个参数：1.父目录 2.所有文件夹名字（不含路径） 3.所有文件名字
+    for root,dirs,files in os.walk(path):
+        #输出文件夹信息
+        res['dirs'] = _sort_dirs(dirs, ignoreDirs) if not fileOnly else {}
+        depth = root[len(path) + len(os.path.sep):].count(os.path.sep)
+        if depth == 0: #不遍历子目录
+            #res += [os.path.join(root, d) for d in dirs]
+            dirs[:] = []
         #输出文件信息
-        for filename in filenames:
-            print "文件名:", filename
-            #输出文件路径信息
-            absname = os.path.join(parent,filename)
-            print "完整路径:", os.path.abspath(absname)
-            print "======= media info ========"
-            print media_info(absname)
-            print ""
+        for filename in files:
+            absname = os.path.join(root,filename)
+            info = media_info(absname)
+            info['name'] = filename
+            res['files'].append(info)
+    #done
+    return res
 
 if __name__ == "__main__":
-    walk(".")
+    res = walk(".")
+    print res
