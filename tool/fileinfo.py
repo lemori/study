@@ -32,6 +32,8 @@ def mediainfo(files):
         p = subprocess.Popen(cmnd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     elif len(files) == 1:
         cmnd = '%s -show_format -loglevel quiet "%s" |grep duration' % (DECODER, files[0])
+        # or universal
+        # cmnd = '%s -show_format -loglevel quiet "%s"' % (DECODER, files[0])
         p = subprocess.Popen(cmnd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
         return None
@@ -43,6 +45,10 @@ def mediainfo(files):
         return out.split('-') # int value list
     else:
         return out.split('=')[1].strip() # float value
+        # or universal, requires re module
+        # p = re.compile(r'.*duration=(\S+)')
+        # m = p.search(out)
+        # return m.groups()[0]
 
 def isvalid_weixin_media(ftype, size, duration=-1):
     '''0:bad, 1:good, 2:not good for thumb'''
